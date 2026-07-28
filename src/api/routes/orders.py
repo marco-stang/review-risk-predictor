@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+import json
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.api.db import get_db
-from src.api.schemas import OrderSummary
+from src.api.schemas import DriverItem, OrderDetail, OrderSummary
 
 router = APIRouter()
 
@@ -22,3 +24,21 @@ def list_orders(
         params.append(risk_level)
     rows = conn.execute(query, params).fetchall()
     return [OrderSummary(**dict(row)) for row in rows]
+
+
+@router.get("/orders/{order_id}", response_model=OrderDetail)
+def get_order(order_id: str, conn=Depends(get_db)):
+    row = conn.execute("SELECT * FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Bestellung nicht gefunden")
+
+    data = dict(row)
+    drivers = [DriverItem(**d) for d in json.loads(data["shap_drivers_json"])]
+    return OrderDetail(
+        order_id=data["order_id"],
+        category_english=data["category_english"],
+        risk_score=data["risk_score"],
+        risk_level=data["risk_level"],
+        drivers=drivers,
+        explanation=data["explanation"],
+    )
