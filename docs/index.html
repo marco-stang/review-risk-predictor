@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai-analytics-portal — Marco Stang</title>
+<meta name="description" content="Erklärbares ML: Review-Risiko-Vorhersage für Olist-Bestellungen, React + FastAPI, SHAP + LLM-Erklärung.">
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --bg-alt: #ffffff;
+    --text: #1c1c1a;
+    --text-muted: #58584f;
+    --border: #e2e0d8;
+    --accent: #a3402a;
+    --accent-soft: #f3e2dc;
+    --accent-2: #2f5d50;
+    --accent-2-soft: #e1ece7;
+    --code-bg: #efede4;
+    --shadow: 0 1px 2px rgba(28,28,26,0.06), 0 8px 24px rgba(28,28,26,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a;
+      --bg-alt: #1f2123;
+      --text: #ece9e2;
+      --text-muted: #a6a396;
+      --border: #33352f;
+      --accent: #e08a6f;
+      --accent-soft: #3a2620;
+      --accent-2: #7fb8a4;
+      --accent-2-soft: #1e2e28;
+      --code-bg: #26282a;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  header.hero { padding: 72px 0 56px; border-bottom: 1px solid var(--border); }
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.15; margin: 0 0 18px; letter-spacing: -0.01em; }
+  .lede { font-size: 1.1rem; color: var(--text-muted); max-width: 62ch; margin: 0 0 28px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+  }
+  .btn:hover { text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #fff8f5; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-disabled { background: transparent; border-color: var(--border); color: var(--text-muted); cursor: default; opacity: 0.7; }
+  .btn-disabled:hover { text-decoration: none; }
+
+  section { padding: 52px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  h2 { font-size: 1.5rem; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .section-intro { color: var(--text-muted); max-width: 68ch; margin: 0 0 32px; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .card .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--accent-2-soft);
+    color: var(--accent-2);
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .card h3 { font-size: 1.02rem; margin: 0 0 8px; }
+  .card p { font-size: 0.92rem; color: var(--text-muted); margin: 0; }
+
+  .why-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }
+  @media (max-width: 640px) { .why-grid { grid-template-columns: 1fr; } }
+  .stat-card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); align-self: start; }
+  .stat-card .label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 1.3rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .stat-card + .stat-card { margin-top: 14px; }
+
+  .pipeline { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; }
+  .pipe-node {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.86rem;
+    box-shadow: var(--shadow);
+    flex: 1 1 150px;
+    min-width: 140px;
+  }
+  .pipe-node.optional { border-style: dashed; color: var(--text-muted); }
+  .pipe-node strong { display: block; font-size: 0.9rem; margin-bottom: 3px; color: var(--text); }
+  .pipe-arrow { display: flex; align-items: center; justify-content: center; padding: 0 8px; color: var(--text-muted); font-size: 1.1rem; flex: 0 0 auto; }
+
+  .file-list {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+  }
+  .file-list .path { color: var(--accent-2); }
+  .file-list .desc { color: var(--text-muted); }
+  .file-list div { white-space: pre; }
+
+  ul.limits { padding-left: 20px; color: var(--text-muted); }
+  ul.limits li { margin-bottom: 8px; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+  table.usecases { width: 100%; border-collapse: collapse; background: var(--bg-alt); font-size: 0.92rem; }
+  table.usecases th, table.usecases td,
+  table.techstack td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  table.usecases th, table.usecases td { white-space: normal; }
+  table.techstack { width: 100%; border-collapse: collapse; background: var(--bg-alt); font-size: 0.9rem; }
+  table.techstack tr:last-child td { border-bottom: none; }
+  table.techstack td:first-child {
+    white-space: nowrap;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    width: 1%;
+  }
+  table.usecases th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+  table.usecases tr:last-child td { border-bottom: none; }
+  .risk-high { color: var(--accent); font-weight: 600; }
+  .risk-medium { color: #b8860b; font-weight: 600; }
+  .risk-low { color: var(--accent-2); font-weight: 600; }
+
+  .doc-links { display: grid; gap: 10px; }
+  .doc-link { display: block; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow); }
+  .doc-link strong { display: block; color: var(--text); font-size: 0.95rem; margin-bottom: 2px; }
+  .doc-link span { color: var(--text-muted); font-size: 0.85rem; }
+
+  code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+
+  footer { padding: 40px 0 64px; color: var(--text-muted); font-size: 0.88rem; }
+  footer a { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Portfolio-Projekt · Explainable ML</span>
+    <h1>Warum wird diese Bestellung wahrscheinlich schlecht bewertet? Und woher weiß das Modell das?</h1>
+    <p class="lede">
+      Ein Full-Stack-Portal (React + FastAPI), das für Olist-Marktplatz-Bestellungen
+      das Risiko einer schlechten Kundenbewertung vorhersagt — mit SHAP-basierter
+      Treiber-Analyse und einer LLM-generierten Klartext-Erklärung statt einer
+      bloßen Blackbox-Zahl.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-disabled" href="#">Live-Demo folgt</a>
+      <a class="btn btn-outline" href="https://github.com/maggostang-droid/ai-analytics-portal">GitHub-Repo ansehen</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Was das Portal macht</h2>
+    <p class="section-intro">Vier Schritte von der Rohbestellung bis zur verständlichen Erklärung.</p>
+    <div class="steps">
+      <div class="card">
+        <span class="num">1</span>
+        <h3>Vorhersagen</h3>
+        <p>Ein <code>GradientBoostingClassifier</code> schätzt pro Bestellung
+        das Risiko einer schlechten Review (≤ 2 Sterne) aus Lieferzeit, Preis,
+        Kategorie, Artikelanzahl und Verkäufer-Historie.</p>
+      </div>
+      <div class="card">
+        <span class="num">2</span>
+        <h3>Erklären</h3>
+        <p>SHAP (<code>TreeExplainer</code>) bestimmt die drei wichtigsten
+        Einflussfaktoren pro Vorhersage — konkrete Zahlen, nicht nur eine Ampel.</p>
+      </div>
+      <div class="card">
+        <span class="num">3</span>
+        <h3>Formulieren</h3>
+        <p>Ein LLM übersetzt die SHAP-Treiber in 1-2 verständliche Sätze auf
+        Deutsch — beeinflusst aber nie die Vorhersage selbst.</p>
+      </div>
+      <div class="card">
+        <span class="num">4</span>
+        <h3>Anzeigen</h3>
+        <p>React-Frontend: Bestell-Liste mit Risiko-Ampel, Detail-Ansicht mit
+        Treiber-Chart, aggregierte Feature-Wichtigkeits-Übersicht.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Beispiel-Bestellungen</h2>
+    <p class="section-intro">Drei echte Beispiele aus dem aktuellen Snapshot (498 Bestellungen) zeigen die Bandbreite der Risikoklassen.</p>
+    <div class="table-wrap">
+      <table class="usecases">
+        <thead>
+          <tr><th>Risiko</th><th>Kategorie</th><th>Score</th><th>Erklärung</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="risk-high">🔴 Hoch</td>
+            <td>cool_stuff</td>
+            <td>84 %</td>
+            <td>„…die Lieferung 8 Tage zu spät kam und der Verkäufer bereits eine sehr schlechte durchschnittliche Bewertung von 2,0 Sternen hat.“</td>
+          </tr>
+          <tr>
+            <td class="risk-medium">🟡 Mittel</td>
+            <td>garden_tools</td>
+            <td>51 %</td>
+            <td>„…die Lieferung 4 Tage später als geplant eintrifft – der ansonsten gute Verkäufer (4,4 Sterne) kann dies nur teilweise ausgleichen.“</td>
+          </tr>
+          <tr>
+            <td class="risk-low">🟢 Niedrig</td>
+            <td>other</td>
+            <td>6 %</td>
+            <td>„…21 Tage früher als erwartet geliefert – deutlich schneller als üblich, zudem eine einfache Bestellung zum moderaten Preis.“</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Modell-Metriken</h2>
+    <div class="why-grid">
+      <div>
+        <p style="color: var(--text-muted); margin-top:0;">
+          Zeitlicher Testset-Split (~20 % der Bestellungen, keine
+          zufällige Durchmischung). Das Modell ist konservativ: sagt es
+          „hoch“, stimmt es meistens (hohe Precision), übersieht aber auch
+          einen Teil der schlechten Reviews (niedriger Recall). Für eine
+          Portfolio-Demo der Explainability-Methodik ausreichend — kein
+          Anspruch auf produktionsreife Vorhersagegüte.
+        </p>
+      </div>
+      <div>
+        <div class="stat-card">
+          <div class="label">ROC-AUC</div>
+          <div class="value">0,706</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Precision</div>
+          <div class="value">0,632</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Recall</div>
+          <div class="value">0,138</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Architektur</h2>
+    <p class="section-intro">Offline-Pipeline schreibt einen SQLite-Snapshot; FastAPI liest nur daraus — kein Live-Postgres, kein Live-LLM-Call zur Laufzeit der App.</p>
+    <div class="pipeline">
+      <div class="pipe-node"><strong>Olist-CSVs</strong>Rohdaten</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><strong>build_features.py</strong>Feature-Engineering</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><strong>train_model.py</strong>GradientBoosting</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><strong>explain.py</strong>SHAP</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node optional"><strong>narrate.py</strong>LLM-Erklärung (einmalig)</div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-node"><strong>SQLite-Snapshot</strong>FastAPI + React</div>
+    </div>
+
+    <div style="height: 24px;"></div>
+
+    <div class="steps">
+      <div class="card">
+        <h3>Kein Live-Postgres</h3>
+        <p>Die Olist-Daten werden einmalig offline zu einem SQLite-Snapshot
+        verarbeitet und mit ins Repo übernommen — kein zweiter, dauerhaft
+        laufender DB-Service nur für dieses Projekt.</p>
+      </div>
+      <div class="card">
+        <h3>Stichprobe statt Vollständigkeit</h3>
+        <p>~500 von ~100.000 Bestellungen (über Risiko-Terzile stratifiziert)
+        — ein LLM-Call pro Bestellung für den ganzen Datensatz wäre weder
+        zeitlich noch finanziell sinnvoll.</p>
+      </div>
+      <div class="card">
+        <h3>Kein Data Leakage</h3>
+        <p>Der Verkäufer-Durchschnitt (<code>seller_avg_review_prior</code>)
+        fließt nur aus Bestellungen <em>vor</em> der aktuellen ein — zeitlich
+        sortiert + geshiftet.</p>
+      </div>
+    </div>
+
+    <div style="height: 28px;"></div>
+
+    <div class="file-list">
+<div><span class="path">pipeline/build_features.py</span> <span class="desc"># Feature-Engineering aus Olist-CSVs</span></div>
+<div><span class="path">pipeline/train_model.py</span>   <span class="desc"># One-Hot-Encoding, zeitlicher Split, Training</span></div>
+<div><span class="path">pipeline/explain.py</span>        <span class="desc"># SHAP-Werte + Top-3-Treiber</span></div>
+<div><span class="path">pipeline/llm.py + narrate.py</span> <span class="desc"># LLM-Erklärungstext</span></div>
+<div><span class="path">pipeline/snapshot.py + run_pipeline.py</span> <span class="desc"># SQLite-Snapshot + Orchestrierung</span></div>
+<div><span class="path">src/api/</span>                  <span class="desc"># FastAPI-Backend (3 Endpunkte)</span></div>
+<div><span class="path">frontend/src/</span>              <span class="desc"># React-Frontend (3 Seiten, 3 Komponenten)</span></div>
+    </div>
+
+    <div style="height: 24px;"></div>
+    <h3 style="font-size: 1.05rem; margin: 0 0 12px;">Tech-Stack</h3>
+    <div class="table-wrap">
+      <table class="techstack">
+        <tbody>
+          <tr><td>ML</td><td>scikit-learn (GradientBoostingClassifier), SHAP</td></tr>
+          <tr><td>LLM-Anbindung</td><td>LangChain (<code>init_chat_model</code>) + langchain-anthropic / langchain-openai — provider-agnostisch über <code>.env</code></td></tr>
+          <tr><td>Backend</td><td>FastAPI, Pydantic, SQLite</td></tr>
+          <tr><td>Frontend</td><td>React 18, Vite, TypeScript, react-router-dom, Recharts</td></tr>
+          <tr><td>Tests</td><td>pytest (16 Tests) + Vitest/React Testing Library (8 Tests), beide ohne Netzwerk/LLM</td></tr>
+          <tr><td>Projektseiten-Hosting</td><td>GitHub Pages (diese Seite — self-contained, kein CDN)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Weiterführende Dokumentation</h2>
+    <div class="doc-links">
+      <a class="doc-link" href="https://github.com/maggostang-droid/ai-analytics-portal/tree/master/docs/superpowers/specs">
+        <strong>Design-Spec</strong>
+        <span>Alle Architekturentscheidungen, mit Marco im Brainstorming abgestimmt</span>
+      </a>
+      <a class="doc-link" href="https://github.com/maggostang-droid/ai-analytics-portal/tree/master/docs/superpowers/plans">
+        <strong>Implementierungsplan</strong>
+        <span>15 Tasks inkl. vollständigem Code, TDD-Zyklus pro Task</span>
+      </a>
+      <a class="doc-link" href="https://github.com/maggostang-droid/ai-analytics-portal/blob/master/HANDOVER.md">
+        <strong>Handover-Dokument</strong>
+        <span>Projektstatus + bekannte offene Punkte, für den Wiedereinstieg ohne vorherigen Kontext</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Limitierungen</h2>
+    <ul class="limits">
+      <li>Kein Anspruch auf produktionsreife Vorhersagegüte (Recall 0,14 — ein relevanter Teil schlechter Reviews wird nicht erkannt).</li>
+      <li>Kein Auth, keine Multi-Tenancy, kein generisches BI-Tool.</li>
+      <li>Kein Live-Postgres, keine Live-Verbindung zu sql-agents Datenbank.</li>
+      <li>Snapshot zeigt eine ~500er-Stichprobe der Bestellungen, nicht alle ~100.000.</li>
+      <li>Live-Deploy (Vercel/Railway) steht noch aus.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Ein Portfolio-Projekt von <a href="https://github.com/maggostang-droid">Marco Stang</a> ·
+    <a href="https://github.com/maggostang-droid/ai-analytics-portal">Quellcode auf GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
