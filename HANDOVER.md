@@ -72,21 +72,32 @@ sind umgesetzt und committed:
 
 ## Bewusst offen / nächster konkreter Schritt
 
-**Live-Deploy steht noch aus** (braucht Marcos Login/Billing, siehe
+**Live-Deploy steht noch aus** (braucht Marcos Login, siehe
 `PORTFOLIO_AGENT_GUIDE.md` Schritt 6 — eine Agenten-Session kann das nicht
-selbst):
+selbst). Entscheidung 2026-07-29: **beide Services auf dem jeweiligen
+Free-Tier ohne Kreditkarte** (Railway wurde verworfen, da mittlerweile
+Kreditkarte + nutzungsbasierte Abrechnung nötig ist):
 
-1. **Frontend auf Vercel:**
+1. **Backend auf Render.com (Free Web Service):**
+   - render.com → mit GitHub einloggen (keine Kreditkarte nötig)
+   - "New +" → "Blueprint" → Repo `maggostang-droid/ai-analytics-portal`
+     auswählen → Render liest `render.yaml` (bereits im Repo) automatisch ein
+   - Alternativ manuell: "New +" → "Web Service" → Runtime Python 3,
+     Build Command `pip install -e .`, Start Command
+     `uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`, Instance Type
+     "Free"
+   - Kein Secret/API-Key im Deployment nötig — `data/olist_snapshot.sqlite`
+     und `models/risk_classifier.joblib` sind bereits im Repo committed
+   - **Bekannter Free-Tier-Trade-off:** Service schläft nach 15 Min
+     Inaktivität ein, nächster Aufruf braucht ~50s zum Aufwachen (analog
+     zum `coldStartNote`-Muster bei den Streamlit-Demos)
+   - Nach dem Deploy die URL notieren (Format `https://<name>.onrender.com`)
+
+2. **Frontend auf Vercel (Hobby-Tier, kostenlos, keine Kreditkarte):**
    - Neues Projekt aus dem GitHub-Repo `maggostang-droid/ai-analytics-portal`
    - Root Directory: `frontend/`
    - Build Command: `npm run build`, Output: `dist/`
-   - Env Var: `VITE_API_BASE_URL` = die spätere Railway/Fly.io-Backend-URL
-
-2. **Backend auf Railway oder Fly.io:**
-   - Aus demselben Repo, Root Directory: Projekt-Root
-   - Start Command: `uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`
-   - `data/olist_snapshot.sqlite` und `models/risk_classifier.joblib` sind
-     bereits im Repo committed — kein Secret/API-Key im Deployment nötig
+   - Env Var: `VITE_API_BASE_URL` = die Render-URL aus Schritt 1
      (die App macht zur Laufzeit keinen LLM-Call).
 
 3. Sobald beide URLs bekannt sind: in `README.md` (Live-Demo-Abschnitt),
