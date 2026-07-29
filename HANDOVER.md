@@ -18,8 +18,9 @@ sind umgesetzt und committed:
   (Bestell-Liste, Bestell-Detail, Feature-Wichtigkeit), 3 Komponenten
   (RiskBadge, DriverChart, ImportanceChart).
 - **Portfolio-Präsentation:** README, `docs/index.html`
-  (GitHub-Pages-Projektseite, noch nicht aktiviert — siehe "Nächster
-  Schritt"), dieses Dokument.
+  (GitHub-Pages-Projektseite, live), dieses Dokument.
+- **Live-Deploy:** Frontend auf Vercel, Backend auf Render — beide auf dem
+  kostenlosen Tier, siehe unten.
 
 ## Was *nachweislich* funktioniert (nicht nur behauptet)
 
@@ -48,6 +49,12 @@ sind umgesetzt und committed:
   4. Navigation zu "Feature-Wichtigkeit" → aggregierte Balken-Chart
      (Screenshot bestätigt)
   5. `console --errors` über den gesamten Durchlauf: **leer**
+- **Derselbe Playwright-Durchlauf wiederholt gegen die echten
+  Produktions-URLs** (nicht nur lokal): Frontend
+  https://ai-analytics-portal-gray.vercel.app/ gegen Backend
+  https://ai-analytics-portal-api.onrender.com — identisches Ergebnis
+  (24 gefilterte "hoch"-Bestellungen, korrekte Erklärung, keine
+  Konsolenfehler).
 
 ## Während der Umsetzung gefundene und gefixte Bugs
 
@@ -69,50 +76,39 @@ sind umgesetzt und committed:
    anderen Prozess. Für die Verifikation wurde lokal auf Port 8001
    ausgewichen (nur zu Testzwecken — README/Doku nennen weiterhin Port
    8000 als Standard, da ein Nutzer diesen Konflikt i.d.R. nicht hat).
+5. **`npm run build` (tsc -b) schlug fehl, obwohl `npm run test` grün
+   war:** Vitest führt beim Testen keine strikte TypeScript-Prüfung durch
+   (esbuild transformiert nur, prüft aber keine Typen) — `tsc -b` im
+   Build-Schritt schon. Zwei reale Fehler dadurch erst beim Vercel-Deploy
+   aufgefallen: `import.meta.env` brauchte die `vite/client`-Typen in
+   `tsconfig.json` (`"types": ["vite/client"]`), und `client.test.ts`
+   nutzte `global.fetch` (Node-Typ, nicht Teil der Browser-`lib`) statt
+   des standardkonformen `globalThis.fetch`.
 
-## Bewusst offen / nächster konkreter Schritt
+## Live-Deploy (abgeschlossen, 2026-07-29)
 
-**Live-Deploy steht noch aus** (braucht Marcos Login, siehe
-`PORTFOLIO_AGENT_GUIDE.md` Schritt 6 — eine Agenten-Session kann das nicht
-selbst). Entscheidung 2026-07-29: **beide Services auf dem jeweiligen
-Free-Tier ohne Kreditkarte** (Railway wurde verworfen, da mittlerweile
-Kreditkarte + nutzungsbasierte Abrechnung nötig ist):
+Beide Services auf dem jeweiligen Free-Tier, keine Kreditkarte nötig
+(Railway wurde verworfen, da mittlerweile Kreditkarte + nutzungsbasierte
+Abrechnung nötig ist):
 
-1. **Backend auf Render.com (Free Web Service):**
-   - render.com → mit GitHub einloggen (keine Kreditkarte nötig)
-   - "New +" → "Blueprint" → Repo `maggostang-droid/ai-analytics-portal`
-     auswählen → Render liest `render.yaml` (bereits im Repo) automatisch ein
-   - Alternativ manuell: "New +" → "Web Service" → Runtime Python 3,
-     Build Command `pip install -e .`, Start Command
-     `uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`, Instance Type
-     "Free"
-   - Kein Secret/API-Key im Deployment nötig — `data/olist_snapshot.sqlite`
-     und `models/risk_classifier.joblib` sind bereits im Repo committed
-   - **Bekannter Free-Tier-Trade-off:** Service schläft nach 15 Min
-     Inaktivität ein, nächster Aufruf braucht ~50s zum Aufwachen (analog
-     zum `coldStartNote`-Muster bei den Streamlit-Demos)
-   - Nach dem Deploy die URL notieren (Format `https://<name>.onrender.com`)
+- **Frontend (Vercel):** https://ai-analytics-portal-gray.vercel.app/
+  — Root Directory `frontend/`, Env Var `VITE_API_BASE_URL` zeigt auf die
+  Render-Backend-URL.
+- **Backend (Render, Free Web Service):**
+  https://ai-analytics-portal-api.onrender.com — deployed über
+  `render.yaml` (Blueprint), kein Secret/API-Key nötig (Erklärungen sind
+  im Snapshot gecacht). **Bekannter Free-Tier-Trade-off:** schläft nach
+  15 Min Inaktivität ein, nächster Aufruf braucht ~50s zum Aufwachen.
+- GitHub-Repo (`maggostang-droid/ai-analytics-portal`, public) angelegt
+  und gepusht, GitHub Pages aktiviert
+  (https://maggostang-droid.github.io/ai-analytics-portal/).
+- `PORTFOLIO_BACKLOG.md` auf `fertig` gesetzt, `stangfolio`-Karte auf
+  `status: "live"` mit den echten URLs aktualisiert.
 
-2. **Frontend auf Vercel (Hobby-Tier, kostenlos, keine Kreditkarte):**
-   - Neues Projekt aus dem GitHub-Repo `maggostang-droid/ai-analytics-portal`
-   - Root Directory: `frontend/`
-   - Build Command: `npm run build`, Output: `dist/`
-   - Env Var: `VITE_API_BASE_URL` = die Render-URL aus Schritt 1
-     (die App macht zur Laufzeit keinen LLM-Call).
+## Bewusst offen
 
-3. Sobald beide URLs bekannt sind: in `README.md` (Live-Demo-Abschnitt),
-   `docs/index.html` (CTA-Button "Live-Demo folgt" aktivieren) und
-   `CLAUDE.md` ("Aktueller Stand") gleichzeitig eintragen.
-
-4. **Danach erst** (nicht vorher): `PORTFOLIO_AGENT_GUIDE.md` Schritt 4
-   (GitHub-Repo tatsächlich anlegen — bisher nur lokales Git-Repo!),
-   Schritt 6 komplett abarbeiten (GitHub Pages aktivieren,
-   `PORTFOLIO_BACKLOG.md` auf `fertig` setzen, `stangfolio`-Karte
-   ergänzen, Rücksprache mit Marco).
-
-**Wichtig:** Dieses Repo existiert bisher nur lokal (`git init` +
-Commits) — es wurde noch **kein** GitHub-Repo dafür angelegt/gepusht.
-Das ist der allererste Schritt, bevor GitHub Pages aktiviert werden kann.
+Keine offenen Schritte mehr für dieses Item — alle Guide-Schritte
+(4 + 6 aus `PORTFOLIO_AGENT_GUIDE.md`) sind abgearbeitet.
 
 ## Bekannte Limitierungen (bewusst, kein Fix nötig)
 

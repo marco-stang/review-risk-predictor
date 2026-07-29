@@ -106,7 +106,19 @@ Kein Linter konfiguriert.
   CORS-Fehler zur Laufzeit, der sich als fremder, verwaister
   `python -m http.server 8000`-Prozess auf demselben Port herausstellte
   (nicht unser Code — Backend läuft lokal jetzt testweise auf Port 8001).
-- **Offen:** Live-Deploy (Vercel für Frontend, Railway/Fly.io für
-  Backend+SQLite) — braucht Marcos Login/Billing, siehe `HANDOVER.md`.
-  Backlog-Status und `stangfolio`-Karte noch nicht aktualisiert (Schritt 6
-  aus `PORTFOLIO_AGENT_GUIDE.md`, folgt nach dem Deploy).
+- **Live-Deploy abgeschlossen (2026-07-29):**
+  - Frontend: https://ai-analytics-portal-gray.vercel.app/ (Vercel Hobby, kostenlos)
+  - Backend: https://ai-analytics-portal-api.onrender.com (Render Free Web Service, kostenlos)
+  - End-to-End gegen die echten Produktions-URLs per Playwright verifiziert
+    (nicht nur lokal) — Bestell-Liste, Filter, Detail-Seite, Insights-Seite,
+    keine Konsolenfehler.
+  - Dabei ein weiterer echter Bug gefunden+gefixt: `npm run build` (tsc -b)
+    schlug fehl, obwohl `npm run test` grün war — Vitest prüft beim Testen
+    keine strikten TypeScript-Typen. Fix: `vite/client`-Typen in
+    `tsconfig.json` ergänzt (für `import.meta.env`) und `global` durch
+    `globalThis` ersetzt (Node-Typ vs. Standard-JS-Global) in
+    `client.test.ts`.
+  - Backend schläft nach 15 Min Inaktivität ein (Render Free-Tier),
+    Cold-Start ~50s beim nächsten Aufruf.
+  - Backlog-Status und `stangfolio`-Karte sind aktualisiert (Schritt 6 aus
+    `PORTFOLIO_AGENT_GUIDE.md`).

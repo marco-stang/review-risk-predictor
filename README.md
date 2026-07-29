@@ -21,8 +21,10 @@ um die React/FastAPI-Full-Stack-Lücke im Lebenslauf.
 
 ## Live-Demo
 
-*(Folgt nach Deploy auf Vercel/Railway — siehe [`HANDOVER.md`](HANDOVER.md)
-für den aktuellen Stand. Bis dahin: Quickstart unten für den lokalen Lauf.)*
+👉 **[ai-analytics-portal-gray.vercel.app](https://ai-analytics-portal-gray.vercel.app/)**
+
+(Backend läuft auf Render Free-Tier — schläft nach 15 Min Inaktivität ein,
+der erste Aufruf danach kann ~50 Sekunden zum Aufwachen brauchen.)
 
 ## Was das Portal macht
 
@@ -173,4 +175,5 @@ npm run dev
 - Kein Live-Postgres, keine Live-Verbindung zu `sql-agent`s Datenbank.
 - Snapshot zeigt eine ~500er-Stichprobe der Bestellungen, nicht alle
   ~100.000 (Kosten-/Zeitgründe für die LLM-Erklärungen, siehe oben).
-- Live-Deploy (Vercel/Railway) steht noch aus, siehe `HANDOVER.md`.
+- Backend läuft auf dem Render Free-Tier — schläft nach Inaktivität ein
+  (Cold-Start ~50s beim ersten Aufruf danach).
