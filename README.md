@@ -1,9 +1,9 @@
-# ai-analytics-portal
+# Review Risk Predictor
 
 Portfolio-Projekt von Marco Stang für Bewerbungen auf AI/KI-Rollen (ggf.
 auch KI-Transformations-Rollen).
 
-🔗 **[Projektseite](https://maggostang-droid.github.io/ai-analytics-portal/)**
+🔗 **[Projektseite](https://maggostang-droid.github.io/review-risk-predictor/)**
 — Überblick, Architektur, Motivation (kein Ersatz für die Live-Demo, siehe
 unten).
 
@@ -16,8 +16,9 @@ erklärbarer ML-Klassifikator (nicht ein LLM) trifft die Vorhersage; ein
 LLM übersetzt anschließend die SHAP-Treiber in verständlichen Klartext.
 
 Full-Stack-Umsetzung mit React-Frontend + FastAPI-Backend, ergänzt
-`sql-agent` (Agentic-AI/SQL) und `goz-finetune-vs-rag` (LLM-Finetuning)
-um die React/FastAPI-Full-Stack-Lücke im Lebenslauf.
+[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (Agentic-AI/SQL)
+und den [Medical Coding Extractor](https://github.com/maggostang-droid/medical-coding-extractor)
+(LLM-Finetuning) um die React/FastAPI-Full-Stack-Lücke im Lebenslauf.
 
 ## Live-Demo
 
@@ -100,7 +101,7 @@ flowchart LR
   `GradientBoostingClassifier`-Training + Evaluation
 - `pipeline/explain.py` — SHAP-Werte + Top-3-Treiber pro Vorhersage
 - `pipeline/llm.py` / `narrate.py` — provider-agnostische LLM-Anbindung
-  (LangChain `init_chat_model`, wie `sql-agent`) + Klartext-Erklärung
+  (LangChain `init_chat_model`, wie beim SQL Copilot) + Klartext-Erklärung
 - `pipeline/snapshot.py` / `run_pipeline.py` — SQLite-Snapshot-Schreiben +
   End-to-End-Orchestrierung
 - `src/api/main.py`, `db.py`, `schemas.py`, `routes/orders.py`,
@@ -116,7 +117,7 @@ flowchart LR
 | Bereich | Technologie | Zweck |
 |---|---|---|
 | ML | scikit-learn (`GradientBoostingClassifier`), SHAP | erklärbare Risiko-Vorhersage |
-| LLM-Anbindung | LangChain (`init_chat_model`) + langchain-anthropic / langchain-openai | provider-agnostisch über `.env`, wie `sql-agent` |
+| LLM-Anbindung | LangChain (`init_chat_model`) + langchain-anthropic / langchain-openai | provider-agnostisch über `.env`, wie beim SQL Copilot |
 | Backend | FastAPI, Pydantic, SQLite | 3 REST-Endpunkte, kein Live-Postgres nötig |
 | Frontend | React 18, Vite, TypeScript, react-router-dom | Bestell-Liste, Detail-Ansicht, Insights-Seite |
 | Charts | Recharts | Treiber-Chart, Feature-Wichtigkeits-Chart |
@@ -135,7 +136,7 @@ cp .env.example .env  # nur für Pipeline-Lauf: LLM_PROVIDER/LLM_MODEL/API-Key
 
 .venv/Scripts/python.exe -m pytest tests/ -v
 
-# Olist-Rohdaten (aus sql-agent/data/raw/) nach data/raw/ kopieren, dann:
+# Olist-Rohdaten (aus dem sql-copilot-Repo, data/raw/) nach data/raw/ kopieren, dann:
 .venv/Scripts/python.exe -m pipeline.run_pipeline   # erzeugt data/olist_snapshot.sqlite
 
 .venv/Scripts/python.exe -m uvicorn src.api.main:app --reload --port 8000
@@ -172,7 +173,7 @@ npm run dev
 - Kein Anspruch auf produktionsreife Vorhersagegüte (Recall 0,14 — ein
   relevanter Teil schlechter Reviews wird nicht erkannt).
 - Kein Auth, keine Multi-Tenancy, kein generisches BI-Tool.
-- Kein Live-Postgres, keine Live-Verbindung zu `sql-agent`s Datenbank.
+- Kein Live-Postgres, keine Live-Verbindung zur Datenbank des SQL Copilot.
 - Snapshot zeigt eine ~500er-Stichprobe der Bestellungen, nicht alle
   ~100.000 (Kosten-/Zeitgründe für die LLM-Erklärungen, siehe oben).
 - Backend läuft auf dem Render Free-Tier — schläft nach Inaktivität ein
