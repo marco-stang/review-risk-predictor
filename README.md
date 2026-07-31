@@ -3,6 +3,9 @@
 Portfolio-Projekt von Marco Stang für Bewerbungen auf AI/KI-Rollen (ggf.
 auch KI-Transformations-Rollen).
 
+<!-- TODO(Marco): Screenshot der Demo hier einfügen:
+     ![Review Risk Predictor — Bestell-Liste mit Risiko-Ampel](docs/demo.png) -->
+
 🔗 **[Projektseite](https://maggostang-droid.github.io/review-risk-predictor/)**
 — Überblick, Architektur, Motivation (kein Ersatz für die Live-Demo, siehe
 unten).
@@ -178,3 +181,13 @@ npm run dev
   ~100.000 (Kosten-/Zeitgründe für die LLM-Erklärungen, siehe oben).
 - Backend läuft auf dem Render Free-Tier — schläft nach Inaktivität ein
   (Cold-Start ~50s beim ersten Aufruf danach).
+
+## Portfolio-Kontext
+
+Dieses Projekt ist Teil von **[MARCO.OS](https://maggostang-droid.github.io/marco-os/)**,
+dem interaktiven Portfolio von Marco Stang — dort lässt sich diese Demo
+direkt im Projektfenster ausprobieren. Schwesterprojekte:
+
+- [SQL Copilot](https://github.com/maggostang-droid/sql-copilot) — LangGraph-Agent für Text-to-SQL mit Guardrails, nutzt denselben Olist-Datensatz
+- [Document Auto-Classifier](https://github.com/maggostang-droid/document-auto-classifier) — serverlose Dokumenten-Pipeline auf AWS (S3 → Lambda → Claude → DynamoDB)
+- [Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) — Chat, der alle Portfolio-Projekte kennt (Context-Stuffing + MCP-Server)
