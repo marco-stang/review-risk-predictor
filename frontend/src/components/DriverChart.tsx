@@ -13,7 +13,7 @@ export default function DriverChart({ drivers }: DriverChartProps) {
         <XAxis type="number" />
         <YAxis type="category" dataKey="name" width={180} />
         <Tooltip />
-        <Bar dataKey="wert" fill="#1565c0" />
+        <Bar dataKey="wert" fill="#a78bfa" />
       </BarChart>
     </ResponsiveContainer>
   );

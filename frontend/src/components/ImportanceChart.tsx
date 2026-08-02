@@ -13,7 +13,7 @@ export default function ImportanceChart({ items }: ImportanceChartProps) {
         <XAxis type="number" />
         <YAxis type="category" dataKey="name" width={200} />
         <Tooltip />
-        <Bar dataKey="wert" fill="#6a1b9a" />
+        <Bar dataKey="wert" fill="#a78bfa" />
       </BarChart>
     </ResponsiveContainer>
   );

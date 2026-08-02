@@ -15,8 +15,7 @@ einem Satz warum: ein erklärbarer ML-Klassifikator trifft die Entscheidung, das
 > *Das Backend läuft auf dem Render Free Tier und schläft nach 15 Minuten ein, der erste
 > Aufruf danach kann rund 50 Sekunden dauern.*
 
-<!-- TODO(Marco): Screenshot einfuegen, dann diese Zeile durch das Bild ersetzen:
-     ![Review Risk Predictor: Bestell-Liste mit Risiko-Ampel und Detailansicht mit Treiber-Chart](docs/demo.png) -->
+![Review Risk Predictor: Detailansicht einer Bestellung mit Risiko-Ampel, Klartext-Erklaerung und den drei staerksten SHAP-Treibern](docs/demo.png)
 
 <details>
 <summary><b>🇬🇧 English summary</b></summary>
