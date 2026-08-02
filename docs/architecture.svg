@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300"
+     width="900" height="300" role="img" aria-label="Offline-Pipeline von den Olist-CSVs ueber Feature-Engineering, Training und SHAP zur LLM-Erklaerung, gecacht im SQLite-Snapshot, den FastAPI und React nur noch lesen">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+    </marker>
+  </defs>
+  <rect x="0.5" y="0.5" width="899" height="299" rx="14"
+        fill="#0a0716" stroke="#a78bfa" stroke-width="1" opacity="1"/>
+  <rect x="0.5" y="0.5" width="899" height="36" rx="14" fill="#140f24"/>
+  <rect x="0.5" y="22" width="899" height="14" fill="#140f24"/>
+  <line x1="0.5" y1="36" x2="899.5" y2="36" stroke="#a78bfa" stroke-width="1" opacity="0.45"/>
+  <circle cx="20" cy="18" r="5" fill="#ff5f57"/>
+  <circle cx="38" cy="18" r="5" fill="#febc2e"/>
+  <circle cx="56" cy="18" r="5" fill="#28c840"/>
+  <text x="76" y="23" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="12"
+        opacity="0.9">app://ai-analytics-portal · architecture</text>
+
+  <path d="M 194 129 L 244 129" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 424 129 L 474 129" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 634 129 L 684 129" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 774 158 L 774 208" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 684 237 L 554 237" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+  <path d="M 394 237 L 314 237" fill="none" stroke="#a78bfa" stroke-width="1.8"
+        marker-end="url(#arrow)" opacity="0.9"/>
+  
+
+  <g>
+    <rect x="34" y="100" width="160" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="34" y="100" width="160" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="114" y="126" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">Olist-CSVs</text>
+    <text x="114" y="144" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">~100k Bestellungen</text>
+  </g>
+  <g>
+    <rect x="244" y="100" width="180" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="244" y="100" width="180" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="334" y="126" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">Pipeline</text>
+    <text x="334" y="144" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Features + Training</text>
+  </g>
+  <g>
+    <rect x="474" y="100" width="160" height="58" rx="10"
+          fill="#a78bfa" stroke="#06040d" stroke-width="3"/>
+    <rect x="474" y="100" width="160" height="58" rx="10"
+          fill="none" stroke="#06040d" stroke-width="1.5" opacity="1"/>
+    <text x="554" y="126" fill="#06040d" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">SHAP</text>
+    <text x="554" y="144" fill="#06040d" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Top-3-Treiber</text>
+  </g>
+  <g>
+    <rect x="684" y="100" width="180" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="684" y="100" width="180" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="774" y="126" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">LLM</text>
+    <text x="774" y="144" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Klartext-Erklaerung</text>
+  </g>
+  <g>
+    <rect x="684" y="208" width="180" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="684" y="208" width="180" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="774" y="234" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">SQLite-Snapshot</text>
+    <text x="774" y="252" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Erklaerungen gecacht</text>
+  </g>
+  <g>
+    <rect x="394" y="208" width="160" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="394" y="208" width="160" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="474" y="234" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">FastAPI</text>
+    <text x="474" y="252" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">3 Endpunkte</text>
+  </g>
+  <g>
+    <rect x="154" y="208" width="160" height="58" rx="10"
+          fill="#140f24" stroke="#06040d" stroke-width="3"/>
+    <rect x="154" y="208" width="160" height="58" rx="10"
+          fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.85"/>
+    <text x="234" y="234" fill="#e7e4f5" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace"
+          font-size="14" font-weight="600" text-anchor="middle">React</text>
+    <text x="234" y="252" fill="#c9c5e8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="11" text-anchor="middle" opacity="0.85">Liste + Detail</text>
+  </g>
+</svg>

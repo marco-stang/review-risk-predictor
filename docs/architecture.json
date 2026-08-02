@@ -1,0 +1,99 @@
+{
+  "title": "app://ai-analytics-portal · architecture",
+  "alt": "Offline-Pipeline von den Olist-CSVs ueber Feature-Engineering, Training und SHAP zur LLM-Erklaerung, gecacht im SQLite-Snapshot, den FastAPI und React nur noch lesen",
+  "accent": "#a78bfa",
+  "width": 900,
+  "height": 300,
+  "nodes": [
+    {
+      "id": "csv",
+      "x": 34,
+      "y": 100,
+      "w": 160,
+      "h": 58,
+      "label": "Olist-CSVs",
+      "sub": "~100k Bestellungen"
+    },
+    {
+      "id": "pipe",
+      "x": 244,
+      "y": 100,
+      "w": 180,
+      "h": 58,
+      "label": "Pipeline",
+      "sub": "Features + Training"
+    },
+    {
+      "id": "shap",
+      "x": 474,
+      "y": 100,
+      "w": 160,
+      "h": 58,
+      "label": "SHAP",
+      "sub": "Top-3-Treiber",
+      "emphasis": true
+    },
+    {
+      "id": "nar",
+      "x": 684,
+      "y": 100,
+      "w": 180,
+      "h": 58,
+      "label": "LLM",
+      "sub": "Klartext-Erklaerung"
+    },
+    {
+      "id": "snap",
+      "x": 684,
+      "y": 208,
+      "w": 180,
+      "h": 58,
+      "label": "SQLite-Snapshot",
+      "sub": "Erklaerungen gecacht"
+    },
+    {
+      "id": "api",
+      "x": 394,
+      "y": 208,
+      "w": 160,
+      "h": 58,
+      "label": "FastAPI",
+      "sub": "3 Endpunkte"
+    },
+    {
+      "id": "ui",
+      "x": 154,
+      "y": 208,
+      "w": 160,
+      "h": 58,
+      "label": "React",
+      "sub": "Liste + Detail"
+    }
+  ],
+  "edges": [
+    {
+      "from": "csv",
+      "to": "pipe"
+    },
+    {
+      "from": "pipe",
+      "to": "shap"
+    },
+    {
+      "from": "shap",
+      "to": "nar"
+    },
+    {
+      "from": "nar",
+      "to": "snap"
+    },
+    {
+      "from": "snap",
+      "to": "api"
+    },
+    {
+      "from": "api",
+      "to": "ui"
+    }
+  ]
+}

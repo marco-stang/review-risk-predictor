@@ -1,193 +1,132 @@
 # Review Risk Predictor
 
-Portfolio-Projekt von Marco Stang für Bewerbungen auf AI/KI-Rollen (ggf.
-auch KI-Transformations-Rollen).
+**Sagt für jede Bestellung das Risiko einer schlechten Bewertung voraus und erklärt in
+einem Satz warum: ein erklärbarer ML-Klassifikator trifft die Entscheidung, das LLM
+übersetzt nur die SHAP-Treiber in Klartext.**
 
-<!-- TODO(Marco): Screenshot der Demo hier einfügen:
-     ![Review Risk Predictor — Bestell-Liste mit Risiko-Ampel](docs/demo.png) -->
+![React](https://img.shields.io/badge/React_18-TypeScript-a78bfa?style=flat-square&labelColor=0a0716)
+![FastAPI](https://img.shields.io/badge/FastAPI-scikit--learn_·_SHAP-a78bfa?style=flat-square&labelColor=0a0716)
+![Tests](https://img.shields.io/badge/Tests-24_passing-a78bfa?style=flat-square&labelColor=0a0716)
+[![Live-Demo](https://img.shields.io/badge/▶_Live--Demo-Vercel-0a0716?style=flat-square&labelColor=a78bfa)](https://ai-analytics-portal-gray.vercel.app/)
 
-🔗 **[Projektseite](https://maggostang-droid.github.io/review-risk-predictor/)**
-— Überblick, Architektur, Motivation (kein Ersatz für die Live-Demo, siehe
-unten).
+> **▶ [Demo ausprobieren](https://ai-analytics-portal-gray.vercel.app/)**
+> Öffne eine rot markierte Bestellung in der Liste: Die Detailansicht zeigt die drei
+> stärksten Risikotreiber als Chart und darunter die Erklärung in einem Satz.
+> *Das Backend läuft auf dem Render Free Tier und schläft nach 15 Minuten ein, der erste
+> Aufruf danach kann rund 50 Sekunden dauern.*
+
+<!-- TODO(Marco): Screenshot einfuegen, dann diese Zeile durch das Bild ersetzen:
+     ![Review Risk Predictor: Bestell-Liste mit Risiko-Ampel und Detailansicht mit Treiber-Chart](docs/demo.png) -->
+
+<details>
+<summary><b>🇬🇧 English summary</b></summary>
+
+For every order in the Olist marketplace, a GradientBoostingClassifier estimates the risk
+of a bad review. SHAP determines the top drivers per prediction, and an LLM turns them into
+one plain-language sentence. Full-stack implementation with a React frontend and a FastAPI
+backend. Metrics on a temporal test split: ROC-AUC 0.706, precision 0.632, recall 0.138,
+which makes the model deliberately conservative rather than production-ready. Full
+write-up in German below.
+</details>
+
+---
 
 ## In 30 Sekunden
 
-Für jede Bestellung im Olist-Marktplatz sagt dieses Portal voraus, wie
-wahrscheinlich eine schlechte Kundenbewertung wird — und erklärt in einem
-Satz, warum, statt nur eine Zahl auszuspucken. Ein klassischer,
-erklärbarer ML-Klassifikator (nicht ein LLM) trifft die Vorhersage; ein
-LLM übersetzt anschließend die SHAP-Treiber in verständlichen Klartext.
+Ein Risiko-Score allein hilft niemandem: Wer im Kundenservice sitzt, muss wissen, *warum*
+eine Bestellung auffällig ist. Deshalb trifft hier ein klassischer, erklärbarer
+ML-Klassifikator die Vorhersage anhand von Lieferzeit, Preis, Kategorie, Artikelanzahl und
+Verkäufer-Historie. SHAP bestimmt die drei wichtigsten Treiber, und erst danach übersetzt
+ein LLM diese Zahlen in ein bis zwei verständliche Sätze.
 
-Full-Stack-Umsetzung mit React-Frontend + FastAPI-Backend, ergänzt
-[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (Agentic-AI/SQL)
-und den [Medical Coding Extractor](https://github.com/maggostang-droid/medical-coding-extractor)
-(LLM-Finetuning) um die React/FastAPI-Full-Stack-Lücke im Lebenslauf.
+Das Projekt schließt bewusst die React/FastAPI-Full-Stack-Lücke neben den anderen
+Portfolio-Projekten, die stärker auf Agenten und Cloud ausgerichtet sind.
 
-## Live-Demo
+## Die zentrale Entscheidung: kein Data Leakage bei der Verkäufer-Historie
 
-👉 **[ai-analytics-portal-gray.vercel.app](https://ai-analytics-portal-gray.vercel.app/)**
+Das stärkste Feature des Modells ist die bisherige Durchschnittsbewertung des Verkäufers.
+Genau dieses Feature ist auch die gefährlichste Leakage-Falle: Berechnet man den
+Durchschnitt naiv über alle Bestellungen, fließt die Bewertung der aktuellen Bestellung in
+ihre eigene Vorhersage ein. Das Modell sähe im Training brillant aus und wäre in
+Produktion wertlos.
 
-(Backend läuft auf Render Free-Tier — schläft nach 15 Min Inaktivität ein,
-der erste Aufruf danach kann ~50 Sekunden zum Aufwachen brauchen.)
+Deshalb wird `seller_avg_review_prior` zeitlich sortiert und geshiftet: Nur Bestellungen
+*vor* der aktuellen fließen ein, nie die eigene und nie spätere. Aus demselben Grund ist
+auch der Train/Test-Split zeitlich und nicht zufällig, denn saisonale Effekte bei
+Lieferzeiten würden bei einem Zufallssplit optimistisch verzerrte Metriken liefern. Die
+Zahlen unten sind dadurch weniger beeindruckend, aber ehrlich.
 
-## Was das Portal macht
+<details>
+<summary><b>▸ Deep Dive: warum keine Live-LLM-Calls und nur eine Stichprobe</b></summary>
 
-1. **Vorhersagen.** Ein `GradientBoostingClassifier` (scikit-learn) schätzt
-   pro Bestellung das Risiko einer schlechten Review (≤ 2 Sterne) anhand von
-   Lieferzeit, Preis, Kategorie, Artikelanzahl und Verkäufer-Historie.
-2. **Erklären.** SHAP (`TreeExplainer`) bestimmt die drei wichtigsten
-   Einflussfaktoren pro Vorhersage — die Zahlen dahinter, nicht nur eine
-   Ampel.
-3. **Formulieren.** Ein LLM übersetzt die SHAP-Treiber in 1-2 verständliche
-   Sätze auf Deutsch (Prompt + Beispiel siehe "Wie es funktioniert").
-4. **Anzeigen.** Ein React-Frontend zeigt Bestell-Liste mit Risiko-Ampel,
-   Detail-Ansicht mit Treiber-Chart + Erklärung, und eine aggregierte
-   Feature-Wichtigkeits-Übersicht.
+Die Erklärungen werden einmalig beim Pipeline-Lauf erzeugt und im SQLite-Snapshot gecacht.
+Die laufende Web-App braucht dadurch im Deployment keinen LLM-API-Key, was Kosten,
+Latenz und eine Angriffsfläche spart.
 
-## Beispiel-Bestellungen
+Der Snapshot enthält rund 500 von etwa 100.000 Olist-Bestellungen, stratifiziert über
+Risiko-Terzile. Ein LLM-Call pro Bestellung für den kompletten Datensatz wäre weder
+zeitlich noch finanziell sinnvoll. Die aggregierte Feature-Wichtigkeits-Übersicht basiert
+dagegen auf *allen* Bestellungen, denn die SHAP-Berechnung ist billig, nur die
+LLM-Erklärung ist der teure Teil.
 
-Drei echte Beispiele aus dem aktuellen Snapshot zeigen die Bandbreite:
-
-| Risiko | Kategorie | Score | Erklärung |
-|---|---|---|---|
-| 🔴 Hoch | cool_stuff | 84 % | "Die Bestellung hat ein hohes Risiko für eine schlechte Bewertung (84%), weil die Lieferung 8 Tage zu spät kam und der Verkäufer bereits eine sehr schlechte durchschnittliche Bewertung von 2,0 Sternen hat. Die starke Verspätung ist dabei der wichtigste Faktor für das hohe Risiko." |
-| 🟡 Mittel | garden_tools | 51 % | "Die Bestellung hat ein erhöhtes Risiko für eine schlechte Bewertung, weil die Lieferung 4 Tage später als geplant eintrifft – Lieferverzögerungen sind der mit Abstand stärkste Negativfaktor. Der ansonsten gute Verkäufer (durchschnittlich 4,4 Sterne) und die Produktkategorie Gartenwerkzeug können dies nur teilweise ausgleichen." |
-| 🟢 Niedrig | other | 6 % | "Die Bestellung hat ein niedriges Risiko von nur 6% für eine schlechte Bewertung, weil sie 21 Tage früher als erwartet geliefert wurde – deutlich schneller als üblich. Zudem handelt es sich um eine einfache Bestellung mit nur einem Artikel zum moderaten Preis von 49,80 €, was das Risiko weiter senkt." |
-
-**Modell-Metriken** (zeitlicher Testset-Split, ~20 % der Bestellungen):
-ROC-AUC **0,706**, Precision **0,632**, Recall **0,138** — das Modell ist
-konservativ: sagt es "hoch", stimmt es meistens (hohe Precision), aber es
-übersieht auch einen Teil der schlechten Reviews (niedriger Recall). Für
-eine Portfolio-Demo der Explainability-Methodik ausreichend, kein Anspruch
-auf produktionsreife Vorhersagegüte.
-
-## Wie es funktioniert
-
-```mermaid
-flowchart LR
-    A[Olist-CSVs] --> B[build_features.py<br/>Feature-Engineering]
-    B --> C[train_model.py<br/>GradientBoostingClassifier]
-    C --> D[explain.py<br/>SHAP TreeExplainer]
-    D --> E[narrate.py<br/>LLM formuliert Klartext]
-    E --> F[snapshot.py<br/>SQLite-Snapshot]
-    F --> G[FastAPI]
-    G --> H[React-Frontend]
-```
-
-- **Kein Live-Postgres.** Die Olist-Daten werden einmalig offline zu einem
-  SQLite-Snapshot (~500 Bestellungen) verarbeitet und mit ins Repo
-  übernommen — vermeidet einen zweiten, dauerhaft laufenden DB-Service nur
-  für dieses Projekt.
-- **Stichprobe statt Vollständigkeit.** Der Snapshot enthält ~500 von
-  ~100.000 Olist-Bestellungen (über Risiko-Terzile stratifiziert) — ein
-  LLM-Call pro Bestellung für den kompletten Datensatz wäre weder
-  zeitlich noch finanziell sinnvoll. Die aggregierte
-  Feature-Wichtigkeits-Übersicht basiert dagegen auf **allen**
-  Bestellungen (SHAP-Berechnung ist billig, nur die LLM-Erklärung ist
-  der teure Teil).
-- **Kein Live-LLM-Call zur Laufzeit der Web-App.** Erklärungen werden
-  beim einmaligen Pipeline-Lauf generiert und im Snapshot gecacht — die
-  laufende App braucht im Deployment keinen LLM-API-Key.
-- **Zeitlicher, nicht zufälliger Train/Test-Split.** Ein zufälliger Split
-  würde durch saisonale Trends (z.B. Lieferzeiten) optimistisch verzerrte
-  Metriken liefern.
-- **Kein Data Leakage bei `seller_avg_review_prior`.** Der
-  Verkäufer-Durchschnitt fließt nur aus Bestellungen *vor* der aktuellen
-  ein (zeitlich sortiert + geshiftet), nie aus der eigenen oder späteren
-  Reviews desselben Sellers.
+Ebenfalls bewusst: kein Live-Postgres. Die Olist-Daten werden offline zu einem
+SQLite-Snapshot verarbeitet und mit ins Repo übernommen, statt einen zweiten dauerhaft
+laufenden Datenbank-Service nur für dieses Projekt zu betreiben.
+</details>
 
 ## Architektur
 
-- `pipeline/build_features.py` — lädt Olist-CSVs, baut Feature-Tabelle
-  (Lieferzeit-Delta, Preis, Kategorie, Artikelanzahl, Seller-Historie)
-- `pipeline/train_model.py` — One-Hot-Encoding, zeitlicher Split,
-  `GradientBoostingClassifier`-Training + Evaluation
-- `pipeline/explain.py` — SHAP-Werte + Top-3-Treiber pro Vorhersage
-- `pipeline/llm.py` / `narrate.py` — provider-agnostische LLM-Anbindung
-  (LangChain `init_chat_model`, wie beim SQL Copilot) + Klartext-Erklärung
-- `pipeline/snapshot.py` / `run_pipeline.py` — SQLite-Snapshot-Schreiben +
-  End-to-End-Orchestrierung
-- `src/api/main.py`, `db.py`, `schemas.py`, `routes/orders.py`,
-  `routes/insights.py` — FastAPI-Backend (3 Endpunkte, liest nur aus dem
-  Snapshot)
-- `frontend/src/pages/` — `OrderList`, `OrderDetail`, `FeatureImportance`
-- `frontend/src/components/` — `RiskBadge`, `DriverChart`,
-  `ImportanceChart`
-- `frontend/src/api/client.ts` — typisierter Fetch-Client
+![Offline-Pipeline von den Olist-CSVs über Feature-Engineering, Training und SHAP zur LLM-Erklärung, gecacht im SQLite-Snapshot, den FastAPI und React nur noch lesen](docs/architecture.svg)
 
-## Tech-Stack
+Alles links vom Snapshot läuft einmalig offline, alles rechts davon ist zur Laufzeit aktiv.
+Das FastAPI-Backend hat drei Endpunkte und liest ausschließlich aus dem Snapshot.
 
-| Bereich | Technologie | Zweck |
+## Was es kann, und was nicht
+
+Modell-Metriken auf dem zeitlichen Testset (etwa 20 Prozent der Bestellungen):
+
+| Metrik | Wert | Lesart |
 |---|---|---|
-| ML | scikit-learn (`GradientBoostingClassifier`), SHAP | erklärbare Risiko-Vorhersage |
-| LLM-Anbindung | LangChain (`init_chat_model`) + langchain-anthropic / langchain-openai | provider-agnostisch über `.env`, wie beim SQL Copilot |
-| Backend | FastAPI, Pydantic, SQLite | 3 REST-Endpunkte, kein Live-Postgres nötig |
-| Frontend | React 18, Vite, TypeScript, react-router-dom | Bestell-Liste, Detail-Ansicht, Insights-Seite |
-| Charts | Recharts | Treiber-Chart, Feature-Wichtigkeits-Chart |
-| Tests | pytest (Backend, 16 Tests), Vitest + React Testing Library (Frontend, 8 Tests) | beide Suiten ohne Netzwerk/LLM-Zugriff |
-| Packaging | setuptools (Python), npm (Frontend) | `pip install -e ".[dev]"` / `npm install` |
-| Projektseiten-Hosting | GitHub Pages | `docs/index.html`, self-contained, kein CDN |
+| ROC-AUC | **0,706** | erkennt Risiko deutlich besser als Zufall |
+| Precision | **0,632** | sagt das Modell „hoch", stimmt es meistens |
+| Recall | **0,138** | es übersieht aber einen großen Teil der schlechten Reviews |
 
-## Quickstart
+Das Modell ist damit ausgesprochen konservativ. Für eine Demo der
+Explainability-Methodik reicht das, als Frühwarnsystem im Einsatz wäre der Recall zu
+niedrig.
 
-**Backend:**
+**24 Tests** (16 Backend mit pytest, 8 Frontend mit Vitest), beide Suiten ohne Netzwerk-
+oder LLM-Zugriff.
+
+**Was dieses Projekt nicht ist:** kein Anspruch auf produktionsreife Vorhersagegüte, kein
+Auth, keine Multi-Tenancy, kein generisches BI-Tool. Der Snapshot zeigt eine Stichprobe von
+rund 500 Bestellungen, nicht alle. Und das Backend auf dem Free Tier schläft ein, der
+Cold-Start ist real.
+
+## Selbst ausprobieren
+
+Einmalig: `python -m venv .venv`, `.venv/Scripts/python.exe -m pip install -e ".[dev]"`,
+`.env` aus [`.env.example`](.env.example) anlegen (nur für den Pipeline-Lauf nötig) und die
+Olist-Rohdaten nach `data/raw/` kopieren.
 
 ```bash
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -e ".[dev]"
-cp .env.example .env  # nur für Pipeline-Lauf: LLM_PROVIDER/LLM_MODEL/API-Key
-
-.venv/Scripts/python.exe -m pytest tests/ -v
-
-# Olist-Rohdaten (aus dem sql-copilot-Repo, data/raw/) nach data/raw/ kopieren, dann:
-.venv/Scripts/python.exe -m pipeline.run_pipeline   # erzeugt data/olist_snapshot.sqlite
-
+.venv/Scripts/python.exe -m pipeline.run_pipeline                       # Snapshot erzeugen
 .venv/Scripts/python.exe -m uvicorn src.api.main:app --reload --port 8000
+cd frontend && npm install && npm run dev                               # Frontend
 ```
 
-**Frontend** (neues Terminal):
+---
 
-```bash
-cd frontend
-npm install
-echo "VITE_API_BASE_URL=http://localhost:8000" > .env
-npm run dev
+```console
+marco@portfolio:~$ open marco-os --project ai-analytics-portal
 ```
 
-## Tests
+**[▸ Dieses Projekt in MARCO.OS öffnen](https://maggostang-droid.github.io/marco-os/#ai-analytics-portal)**,
+dem interaktiven Portfolio von Marco Stang.
 
-- **Backend:** `pytest tests/ -v` — 16 Tests, kein Netzwerk-/LLM-Zugriff
-  nötig (LLM-Aufrufe werden mit einer Fake-LLM-Klasse getestet, die API
-  liest aus einer In-Memory-SQLite-Fixture).
-- **Frontend:** `npm run test` (Vitest) — 8 Tests, API-Calls per
-  `vi.spyOn`/`vi.fn` gemockt, kein echtes Backend nötig.
+**Schwesterprojekte:**
+[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (LangGraph-Agent, gleicher Olist-Datensatz) ·
+[Document Auto-Classifier](https://github.com/maggostang-droid/document-auto-classifier) (serverlos auf AWS) ·
+[Medical Coding Extractor](https://github.com/maggostang-droid/medical-coding-extractor) (LoRA-Finetuning gegen RAG)
 
-## Weiterführende Dokumentation
-
-- [`docs/superpowers/specs/`](docs/superpowers/specs/) — Design-Spec mit
-  allen Architekturentscheidungen
-- [`docs/superpowers/plans/`](docs/superpowers/plans/) — Implementierungsplan
-  (15 Tasks, inkl. vollständigem Code pro Task)
-- [`HANDOVER.md`](HANDOVER.md) — Projektstatus + bekannte offene Punkte,
-  gedacht für den Wiedereinstieg ohne vorherigen Kontext
-
-## Limitierungen
-
-- Kein Anspruch auf produktionsreife Vorhersagegüte (Recall 0,14 — ein
-  relevanter Teil schlechter Reviews wird nicht erkannt).
-- Kein Auth, keine Multi-Tenancy, kein generisches BI-Tool.
-- Kein Live-Postgres, keine Live-Verbindung zur Datenbank des SQL Copilot.
-- Snapshot zeigt eine ~500er-Stichprobe der Bestellungen, nicht alle
-  ~100.000 (Kosten-/Zeitgründe für die LLM-Erklärungen, siehe oben).
-- Backend läuft auf dem Render Free-Tier — schläft nach Inaktivität ein
-  (Cold-Start ~50s beim ersten Aufruf danach).
-
-## Portfolio-Kontext
-
-Dieses Projekt ist Teil von **[MARCO.OS](https://maggostang-droid.github.io/marco-os/)**,
-dem interaktiven Portfolio von Marco Stang — dort lässt sich diese Demo
-direkt im Projektfenster ausprobieren. Schwesterprojekte:
-
-- [SQL Copilot](https://github.com/maggostang-droid/sql-copilot) — LangGraph-Agent für Text-to-SQL mit Guardrails, nutzt denselben Olist-Datensatz
-- [Document Auto-Classifier](https://github.com/maggostang-droid/document-auto-classifier) — serverlose Dokumenten-Pipeline auf AWS (S3 → Lambda → Claude → DynamoDB)
-- [Ask-Marco Assistant](https://github.com/maggostang-droid/ask-marco-assistant) — Chat, der alle Portfolio-Projekte kennt (Context-Stuffing + MCP-Server)
+<sub>Marco Stang · Dr.-Ing. · [LinkedIn](https://www.linkedin.com/in/marco-stang) · stang.marco@t-online.de · MIT-Lizenz</sub>
