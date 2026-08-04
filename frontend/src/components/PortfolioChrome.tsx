@@ -7,7 +7,7 @@
  * marco-os/assets/js/router.js aufloest.
  */
 
-const PORTFOLIO_URL = "https://maggostang-droid.github.io/marco-os/";
+const PORTFOLIO_URL = "https://marco-stang.github.io/";
 const PROJECT_ID = "ai-analytics-portal";
 const REPO = "review-risk-predictor";
 
@@ -42,7 +42,7 @@ export function PortfolioFooter() {
         Free Tier und schläft nach Inaktivität ein
       </div>
       <div>
-        <a href={`https://github.com/maggostang-droid/${REPO}`} target="_blank" rel="noopener noreferrer">
+        <a href={`https://github.com/marco-stang/${REPO}`} target="_blank" rel="noopener noreferrer">
           Quellcode auf GitHub
         </a>{" "}
         ·{" "}

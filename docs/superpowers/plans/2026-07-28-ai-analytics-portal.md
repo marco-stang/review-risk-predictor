@@ -2283,7 +2283,7 @@ git commit -m "Portfolio-Präsentation: README, GitHub-Pages-Seite, CLAUDE.md, H
 
 Nicht in diesem Plan enthalten, aber bevor das Backlog-Item als `fertig`
 gilt zwingend nötig:
-- Neues GitHub-Repo anlegen (`gh repo create maggostang-droid/ai-analytics-portal --public`), pushen
+- Neues GitHub-Repo anlegen (`gh repo create marco-stang/ai-analytics-portal --public`), pushen
 - GitHub Pages aktivieren (`gh api ... /pages`), Projektseite verifizieren
 - Live-Deploy-Anleitung an Marco (Vercel für `frontend/`, Railway/Fly.io für
   Backend+SQLite) — Deploy-Schritt selbst macht Marco (Login/Billing)

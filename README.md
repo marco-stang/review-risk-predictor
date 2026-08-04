@@ -120,12 +120,12 @@ cd frontend && npm install && npm run dev                               # Fronte
 marco@portfolio:~$ open marco-os --project ai-analytics-portal
 ```
 
-**[▸ Dieses Projekt in MARCO.OS öffnen](https://maggostang-droid.github.io/marco-os/#ai-analytics-portal)**,
+**[▸ Dieses Projekt in MARCO.OS öffnen](https://marco-stang.github.io/#ai-analytics-portal)**,
 dem interaktiven Portfolio von Marco Stang.
 
 **Schwesterprojekte:**
-[SQL Copilot](https://github.com/maggostang-droid/sql-copilot) (LangGraph-Agent, gleicher Olist-Datensatz) ·
-[Document Auto-Classifier](https://github.com/maggostang-droid/document-auto-classifier) (serverlos auf AWS) ·
-[Medical Coding Extractor](https://github.com/maggostang-droid/medical-coding-extractor) (LoRA-Finetuning gegen RAG)
+[SQL Copilot](https://github.com/marco-stang/sql-copilot) (LangGraph-Agent, gleicher Olist-Datensatz) ·
+[Document Auto-Classifier](https://github.com/marco-stang/document-auto-classifier) (serverlos auf AWS) ·
+[Medical Coding Extractor](https://github.com/marco-stang/medical-coding-extractor) (LoRA-Finetuning gegen RAG)
 
 <sub>Marco Stang · Dr.-Ing. · [LinkedIn](https://www.linkedin.com/in/marco-stang) · stang.marco@t-online.de · MIT-Lizenz</sub>

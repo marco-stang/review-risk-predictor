@@ -136,5 +136,5 @@ niedrig und macht die Endpunkte in Tests ohne LLM-Call testbar.
 
 ## Repo
 
-`github.com/maggostang-droid/ai-analytics-portal`, public, Branch `master`
+`github.com/marco-stang/ai-analytics-portal`, public, Branch `master`
 (Konvention der bestehenden 5 Projekte).

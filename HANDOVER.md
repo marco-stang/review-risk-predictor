@@ -99,9 +99,9 @@ Abrechnung nötig ist):
   `render.yaml` (Blueprint), kein Secret/API-Key nötig (Erklärungen sind
   im Snapshot gecacht). **Bekannter Free-Tier-Trade-off:** schläft nach
   15 Min Inaktivität ein, nächster Aufruf braucht ~50s zum Aufwachen.
-- GitHub-Repo (`maggostang-droid/ai-analytics-portal`, public) angelegt
+- GitHub-Repo (`marco-stang/review-risk-predictor`, public) angelegt
   und gepusht, GitHub Pages aktiviert
-  (https://maggostang-droid.github.io/ai-analytics-portal/).
+  (https://marco-stang.github.io/review-risk-predictor/).
 - `PORTFOLIO_BACKLOG.md` auf `fertig` gesetzt, `stangfolio`-Karte auf
   `status: "live"` mit den echten URLs aktualisiert.
 
