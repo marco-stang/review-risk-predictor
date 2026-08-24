@@ -13,6 +13,9 @@
   --text: #e7e4f5;
   --text-dim: #c9c5e8;
   --on-accent: #0a0716;
+  --risk-low: #2e7d32;
+  --risk-mid: #f9a825;
+  --risk-high: #c62828;
   color-scheme: dark;
 }
 
@@ -84,6 +87,11 @@ nav a {
 }
 nav a:hover {
   color: var(--text);
+  border-color: var(--accent);
+}
+nav a.active {
+  color: var(--on-accent);
+  background: var(--accent);
   border-color: var(--accent);
 }
 
@@ -159,6 +167,114 @@ th {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+tbody tr:hover {
+  background: var(--panel);
+}
+tbody td a {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+/* Toolbar: Suche + Filter oberhalb der Bestell-Tabelle */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.toolbar input[type="search"] {
+  flex: 1;
+  min-width: 220px;
+}
+
+.sort-button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+.sort-button:hover {
+  color: var(--accent);
+}
+
+.result-count {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.empty-state,
+.error-banner {
+  color: var(--text-dim);
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+.error-banner {
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 20px;
+  color: var(--text-dim);
+}
+.detail-meta .risk-score {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.explanation {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 16px;
+  max-width: 68ch;
+}
+
+.chart-hint {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  max-width: 68ch;
+}
+
+.risk-badge {
+  display: inline-block;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+.risk-badge--niedrig {
+  background: var(--risk-low);
+}
+.risk-badge--mittel {
+  background: var(--risk-mid);
+}
+.risk-badge--hoch {
+  background: var(--risk-high);
 }
 
 /* Fussbereich nach Demo-Styleguide: ehrliche Einordnung, Repo, Portfolio */

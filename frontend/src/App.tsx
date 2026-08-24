@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router-dom";
 import { PortfolioFooter, PortfolioHeader } from "./components/PortfolioChrome";
 import FeatureImportance from "./pages/FeatureImportance";
 import OrderDetail from "./pages/OrderDetail";
@@ -9,8 +9,12 @@ export default function App() {
     <div>
       <PortfolioHeader />
       <nav>
-        <Link to="/">Bestellungen</Link>
-        <Link to="/insights">Feature-Wichtigkeit</Link>
+        <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : undefined)}>
+          Bestellungen
+        </NavLink>
+        <NavLink to="/insights" className={({ isActive }) => (isActive ? "active" : undefined)}>
+          Feature-Wichtigkeit
+        </NavLink>
       </nav>
       <Routes>
         <Route path="/" element={<OrderList />} />
